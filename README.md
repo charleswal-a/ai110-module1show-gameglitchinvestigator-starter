@@ -25,19 +25,22 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+- Glitchy Guesser is a number-guessing game where the player tries to find a randomly chosen secret number within a number of attempts. The difficulty settings control the number range and how many guesses are allowed, and the game tracks a running score and guess history. After each guess the hints show whether the guess was too high or too low until the player wins or runs out of attempts.
+- Previously, "New Game" button only reset the attempts and secret, so the score carried over and a finished game stayed stuck, blocking new guesses. Additionally, the check_guess function had inverted high/low hints and compared the guess against the secret as strings, producing wrong directions..
+- I rewrote the New Game handler to reset all five state values using the difficulty-aware range, which fixed both the score carrying over and stuck-game bugs. I corrected check_guess to turn both values to integers and return properly oriented hints. I also refactored it and the other logic functions into logic_utils.py.
 
 ## 📸 Demo Walkthrough
 
 Describe your fixed game in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. Player chooses the normal difficulty.
+2. PLayer enters a guess of 50.
+3. Game returns "Go HIGHER!"
+4. Player enters a guess or 75.
+5. Game returns "Go HIGHER!"
+6. Score and number of guesses updates after each guess.
+7. Game ends after the correct guess or player runs out of guesses.
+
 
 **Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
 
