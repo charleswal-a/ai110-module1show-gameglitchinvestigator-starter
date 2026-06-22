@@ -8,6 +8,43 @@ from logic_utils import (
     update_score,
 )
 
+
+def proximity(guess, secret, low, high):
+    """
+    Return (emoji, label, color) describing how close a guess is.
+
+    Pure presentation helper — does NOT affect game logic or scoring.
+    `color` is a Streamlit markdown color name.
+    """
+    span = max(high - low, 1)
+    ratio = abs(int(guess) - int(secret)) / span
+    if ratio == 0:
+        return "🎯", "Bullseye!", "green"
+    if ratio <= 0.05:
+        return "🔥", "Boiling hot", "red"
+    if ratio <= 0.12:
+        return "♨️", "Hot", "orange"
+    if ratio <= 0.25:
+        return "🌤️", "Warm", "orange"
+    if ratio <= 0.45:
+        return "❄️", "Cold", "blue"
+    return "🧊", "Freezing", "blue"
+
+
+def render_summary():
+    """Render a summary table of the current session's guesses."""
+    rounds = st.session_state.get("rounds", [])
+    if not rounds:
+        return
+    with st.expander("📋 Session summary", expanded=True):
+        st.table(rounds)
+        st.caption(
+            f"Guesses: {len(rounds)}  •  "
+            f"Score: {st.session_state.score}  •  "
+            f"Status: {st.session_state.status}"
+        )
+
+
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
@@ -48,6 +85,9 @@ if "status" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+if "rounds" not in st.session_state:
+    st.session_state.rounds = []
+
 st.subheader("Make a guess")
 
 st.info(
@@ -82,6 +122,7 @@ if new_game:
     st.session_state.score = 0
     st.session_state.status = "playing"
     st.session_state.history = []
+    st.session_state.rounds = []
     st.success("New game started.")
     st.rerun()
 
@@ -90,6 +131,7 @@ if st.session_state.status != "playing":
         st.success("You already won. Start a new game to play again.")
     else:
         st.error("Game over. Start a new game to try again.")
+    render_summary()
     st.stop()
 
 if submit:
@@ -110,8 +152,24 @@ if submit:
 
         outcome, message = check_guess(guess_int, secret)
 
-        if show_hint:
-            st.warning(message)
+        emoji, label, color = proximity(
+            guess_int, st.session_state.secret, low, high
+        )
+
+        # Color-coded Hot/Cold feedback (always shown — pure presentation).
+        st.markdown(f"### {emoji} :{color}[{label}]")
+        if show_hint and outcome != "Win":
+            st.markdown(f":{color}[{message}]")
+
+        # Record this round for the session summary table.
+        st.session_state.rounds.append(
+            {
+                "Attempt": st.session_state.attempts,
+                "Guess": guess_int,
+                "Result": outcome,
+                "Proximity": f"{emoji} {label}",
+            }
+        )
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
@@ -134,6 +192,8 @@ if submit:
                     f"The secret was {st.session_state.secret}. "
                     f"Score: {st.session_state.score}"
                 )
+
+render_summary()
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")

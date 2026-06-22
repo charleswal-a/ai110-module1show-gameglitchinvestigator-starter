@@ -54,4 +54,4 @@ Describe your fixed game in numbered steps so a reader can follow along without 
 
 ## 🚀 Stretch Features
 
-- [ ] [If you choose to complete Challenge 4, describe the Enhanced UI changes here — a screenshot is optional]
+- I utilized Claude Code to make a variety of changes to the app UI. I added user-friendly output to the game without changing the core logic of the program. Now, each guess shows color-coded Hot/Cold proximity feedback scaled to the selected difficulty's range. Directional hints are now color-matched to how close the guess is, and every valid guess shows visible feedback. A session summary table was also added to list each attempt, guess, result, and proximity.
